@@ -13,7 +13,6 @@ type IngredientDetailsProps = {
 export const IngredientDetails: FC<IngredientDetailsProps> = ({ isModal }) => {
   const { id } = useParams<{ id: string }>();
   const ingredients = useAppSelector(selectIngredients);
-
   const ingredientData = ingredients.find((item) => item._id === id);
 
   if (!ingredientData) {

@@ -11,7 +11,7 @@ import {
   selectUserOrders,
   fetchFeed,
   fetchUserOrders,
-  fetchIngredients
+  selectIsAuthenticated
 } from '../../slices/stellarBurgerSlice';
 
 type OrderInfoProps = {
@@ -25,25 +25,24 @@ export const OrderInfo: FC<OrderInfoProps> = ({ isModal }) => {
   const ingredients = useAppSelector(selectIngredients);
   const orders = useAppSelector(selectOrders);
   const userOrders = useAppSelector(selectUserOrders);
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
 
   const isProfileOrder = location.pathname.includes('/profile');
 
   useEffect(() => {
-    if (!ingredients.length) {
-      dispatch(fetchIngredients());
-    }
-
-    if (isProfileOrder && !userOrders.length) {
-      dispatch(fetchUserOrders());
-    } else if (!isProfileOrder && !orders.length) {
+    if (isProfileOrder) {
+      if (isAuthenticated && !userOrders.length) {
+        dispatch(fetchUserOrders());
+      }
+    } else if (!orders.length) {
       dispatch(fetchFeed());
     }
   }, [
     dispatch,
-    ingredients.length,
     orders.length,
     userOrders.length,
-    isProfileOrder
+    isProfileOrder,
+    isAuthenticated
   ]);
 
   const orderData = useMemo(() => {

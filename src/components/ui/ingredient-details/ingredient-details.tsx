@@ -3,7 +3,7 @@ import styles from './ingredient-details.module.css';
 import { IngredientDetailsUIProps } from './type';
 
 export const IngredientDetailsUI: FC<IngredientDetailsUIProps> = memo(
-  ({ ingredientData }) => {
+  ({ ingredientData, isModal }) => {
     const { name, image_large, calories, proteins, fat, carbohydrates } =
       ingredientData;
 
@@ -15,12 +15,14 @@ export const IngredientDetailsUI: FC<IngredientDetailsUIProps> = memo(
           src={image_large}
           style={{ position: 'relative', zIndex: 1 }}
         />
-        <h3
-          className='text text_type_main-medium mt-2 mb-4'
-          data-testid='ingredient_name'
-        >
-          {name}
-        </h3>
+        {!isModal && (
+          <h3
+            className='text text_type_main-medium mt-2 mb-4'
+            data-testid='ingredient_name'
+          >
+            {name}
+          </h3>
+        )}
         <ul className={`${styles.nutritional_values} text_type_main-default`}>
           <li className={styles.nutritional_value}>
             <p className={`text mb-2 ${styles.text}`}>Калории, ккал</p>

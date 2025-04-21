@@ -1,10 +1,7 @@
 import { useState, useRef, useEffect, FC, useCallback } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { useAppSelector, useAppDispatch } from '../../services/store';
-import {
-  fetchIngredients,
-  selectIngredients
-} from '../../slices/stellarBurgerSlice';
+import { selectIngredients } from '../../slices/stellarBurgerSlice';
 
 import { TTabMode } from '@utils-types';
 import { BurgerIngredientsUI } from '../ui/burger-ingredients';
@@ -15,12 +12,6 @@ export const BurgerIngredients: FC = () => {
   const isLoading = useAppSelector(
     (state) => state.stellarBurger.ingredientsRequest
   );
-
-  useEffect(() => {
-    if (!isLoading && ingredients.length === 0) {
-      dispatch(fetchIngredients());
-    }
-  }, [dispatch, isLoading, ingredients]);
 
   const buns = ingredients.filter(
     (item: { type: string }) => item.type === 'bun'
