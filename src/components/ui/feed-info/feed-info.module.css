@@ -12,9 +12,10 @@
   list-style: none;
   margin: 0;
   padding-left: 0;
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  grid-template-rows: repeat(10, auto);
+  grid-auto-flow: column;
   max-height: 180px;
   overflow: hidden;
 }
@@ -26,7 +27,7 @@
 
 .list_item {
   text-align: left;
-  min-width: 50%;
+  min-width: 8px;
 }
 
 .content {

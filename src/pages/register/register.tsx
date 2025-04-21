@@ -1,24 +1,37 @@
 import { FC, SyntheticEvent, useState } from 'react';
 import { RegisterUI } from '@ui-pages';
+import { useAppDispatch } from '../../services/store';
+import { registerThunk } from '../../slices/stellarBurgerSlice';
+import { useNavigate } from 'react-router-dom';
 
 export const Register: FC = () => {
-  const [userName, setUserName] = useState('');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: SyntheticEvent) => {
+  const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
+    setError(null);
+    try {
+      await dispatch(registerThunk({ email, password, name }));
+      navigate('/');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Registration failed');
+    }
   };
 
   return (
     <RegisterUI
-      errorText=''
+      errorText={error}
       email={email}
-      userName={userName}
+      name={name}
       password={password}
       setEmail={setEmail}
       setPassword={setPassword}
-      setUserName={setUserName}
+      setName={setName}
       handleSubmit={handleSubmit}
     />
   );

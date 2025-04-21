@@ -21,3 +21,7 @@
 .button:hover {
   cursor: pointer;
 }
+
+.description {
+  opacity: 0.4;
+}

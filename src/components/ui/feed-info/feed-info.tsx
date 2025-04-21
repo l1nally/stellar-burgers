@@ -35,18 +35,27 @@ const HalfColumn: FC<HalfColumnProps> = ({ orders, title, textColor }) => (
           style={{ color: textColor === 'blue' ? '#00cccc' : '#F2F2F3' }}
           key={index}
         >
-          {item}
+          {String(item).padStart(6, '0')}
         </li>
       ))}
     </ul>
   </div>
 );
 
-const Column: FC<TColumnProps> = ({ title, content }) => (
-  <>
-    <h3 className={`pt-15 text text_type_main-medium ${styles.title}`}>
-      {title}:
-    </h3>
-    <p className={`text text_type_digits-large ${styles.content}`}>{content}</p>
-  </>
-);
+const Column: FC<TColumnProps> = ({ title, content }) => {
+  const formattedContent =
+    typeof content === 'number'
+      ? content.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+      : content;
+
+  return (
+    <>
+      <h3 className={`pt-15 text text_type_main-medium ${styles.title}`}>
+        {title}:
+      </h3>
+      <p className={`text text_type_digits-large ${styles.content}`}>
+        {formattedContent}
+      </p>
+    </>
+  );
+};

@@ -1,14 +1,36 @@
-import { useState, useRef, useEffect, FC } from 'react';
+import { useState, useRef, useEffect, FC, useCallback } from 'react';
 import { useInView } from 'react-intersection-observer';
+import { useAppSelector, useAppDispatch } from '../../services/store';
+import {
+  fetchIngredients,
+  selectIngredients
+} from '../../slices/stellarBurgerSlice';
 
 import { TTabMode } from '@utils-types';
 import { BurgerIngredientsUI } from '../ui/burger-ingredients';
 
 export const BurgerIngredients: FC = () => {
-  /** TODO: взять переменные из стора */
-  const buns = [];
-  const mains = [];
-  const sauces = [];
+  const dispatch = useAppDispatch();
+  const ingredients = useAppSelector(selectIngredients);
+  const isLoading = useAppSelector(
+    (state) => state.stellarBurger.ingredientsRequest
+  );
+
+  useEffect(() => {
+    if (!isLoading && ingredients.length === 0) {
+      dispatch(fetchIngredients());
+    }
+  }, [dispatch, isLoading, ingredients]);
+
+  const buns = ingredients.filter(
+    (item: { type: string }) => item.type === 'bun'
+  );
+  const mains = ingredients.filter(
+    (item: { type: string }) => item.type === 'main'
+  );
+  const sauces = ingredients.filter(
+    (item: { type: string }) => item.type === 'sauce'
+  );
 
   const [currentTab, setCurrentTab] = useState<TTabMode>('bun');
   const titleBunRef = useRef<HTMLHeadingElement>(null);
@@ -16,18 +38,21 @@ export const BurgerIngredients: FC = () => {
   const titleSaucesRef = useRef<HTMLHeadingElement>(null);
 
   const [bunsRef, inViewBuns] = useInView({
-    threshold: 0
+    threshold: 0,
+    rootMargin: '-20px 0px -80% 0px'
   });
 
   const [mainsRef, inViewFilling] = useInView({
-    threshold: 0
+    threshold: 0,
+    rootMargin: '-20px 0px -80% 0px'
   });
 
   const [saucesRef, inViewSauces] = useInView({
-    threshold: 0
+    threshold: 0,
+    rootMargin: '-20px 0px -80% 0px'
   });
 
-  useEffect(() => {
+  const handleTabVisibilityChange = useCallback(() => {
     if (inViewBuns) {
       setCurrentTab('bun');
     } else if (inViewSauces) {
@@ -37,7 +62,11 @@ export const BurgerIngredients: FC = () => {
     }
   }, [inViewBuns, inViewFilling, inViewSauces]);
 
-  const onTabClick = (tab: string) => {
+  useEffect(() => {
+    handleTabVisibilityChange();
+  }, [handleTabVisibilityChange]);
+
+  const onTabClick = useCallback((tab: string) => {
     setCurrentTab(tab as TTabMode);
     if (tab === 'bun')
       titleBunRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -45,9 +74,7 @@ export const BurgerIngredients: FC = () => {
       titleMainRef.current?.scrollIntoView({ behavior: 'smooth' });
     if (tab === 'sauce')
       titleSaucesRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  return null;
+  }, []);
 
   return (
     <BurgerIngredientsUI

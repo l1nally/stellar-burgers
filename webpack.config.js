@@ -89,6 +89,23 @@ module.exports = {
     static: path.join(__dirname, './dist'),
     compress: true,
     historyApiFallback: true,
-    port: 4000
+    port: 4000,
+    proxy: {
+      '/api': {
+        target: 'https://norma.nomoreparties.space',
+        secure: false,
+        changeOrigin: true,
+        timeout: 60000,
+        headers: {
+          Connection: 'keep-alive'
+        },
+        onProxyReq: function (proxyReq, req, res) {
+          proxyReq.setHeader('Origin', 'https://norma.nomoreparties.space');
+        },
+        onError: (err, req, res) => {
+          console.error('Proxy error:', err);
+        }
+      }
+    }
   }
 };

@@ -1,67 +1,130 @@
-import { FC, useMemo } from 'react';
+import { FC, useEffect, useMemo } from 'react';
+import { useParams, useLocation } from 'react-router-dom';
+import { useAppSelector, useAppDispatch } from '../../services/store';
 import { Preloader } from '../ui/preloader';
 import { OrderInfoUI } from '../ui/order-info';
-import { TIngredient } from '@utils-types';
+import { TIngredient, TOrder } from '@utils-types';
+import styles from '../app/app.module.css';
+import {
+  selectIngredients,
+  selectOrders,
+  selectUserOrders,
+  fetchFeed,
+  fetchUserOrders,
+  fetchIngredients
+} from '../../slices/stellarBurgerSlice';
 
-export const OrderInfo: FC = () => {
-  /** TODO: взять переменные orderData и ingredients из стора */
-  const orderData = {
-    createdAt: '',
-    ingredients: [],
-    _id: '',
-    status: '',
-    name: '',
-    updatedAt: 'string',
-    number: 0
-  };
+type OrderInfoProps = {
+  isModal?: boolean;
+};
 
-  const ingredients: TIngredient[] = [];
+export const OrderInfo: FC<OrderInfoProps> = ({ isModal }) => {
+  const { number } = useParams<{ number: string }>();
+  const location = useLocation();
+  const dispatch = useAppDispatch();
+  const ingredients = useAppSelector(selectIngredients);
+  const orders = useAppSelector(selectOrders);
+  const userOrders = useAppSelector(selectUserOrders);
 
-  /* Готовим данные для отображения */
+  const isProfileOrder = location.pathname.includes('/profile');
+
+  useEffect(() => {
+    if (!ingredients.length) {
+      dispatch(fetchIngredients());
+    }
+
+    if (isProfileOrder && !userOrders.length) {
+      dispatch(fetchUserOrders());
+    } else if (!isProfileOrder && !orders.length) {
+      dispatch(fetchFeed());
+    }
+  }, [
+    dispatch,
+    ingredients.length,
+    orders.length,
+    userOrders.length,
+    isProfileOrder
+  ]);
+
+  const orderData = useMemo(() => {
+    const numericOrderNumber = Number(number);
+    let foundOrder: TOrder | undefined;
+
+    if (isProfileOrder) {
+      foundOrder = userOrders.find(
+        (order) => order.number === numericOrderNumber
+      );
+    } else {
+      foundOrder = orders.find((order) => order.number === numericOrderNumber);
+    }
+
+    if (!foundOrder) {
+      foundOrder = isProfileOrder
+        ? orders.find((order) => order.number === numericOrderNumber)
+        : userOrders.find((order) => order.number === numericOrderNumber);
+    }
+
+    return foundOrder;
+  }, [number, orders, userOrders, isProfileOrder]);
+
   const orderInfo = useMemo(() => {
     if (!orderData || !ingredients.length) return null;
 
-    const date = new Date(orderData.createdAt);
-
-    type TIngredientsWithCount = {
-      [key: string]: TIngredient & { count: number };
-    };
-
     const ingredientsInfo = orderData.ingredients.reduce(
-      (acc: TIngredientsWithCount, item) => {
-        if (!acc[item]) {
-          const ingredient = ingredients.find((ing) => ing._id === item);
-          if (ingredient) {
-            acc[item] = {
-              ...ingredient,
-              count: 1
-            };
-          }
-        } else {
-          acc[item].count++;
-        }
+      (acc: { [key: string]: TIngredient & { count: number } }, id: string) => {
+        const ingredient = ingredients.find((item) => item._id === id);
+        if (!ingredient) return acc;
 
+        if (acc[id]) {
+          acc[id].count++;
+        } else {
+          acc[id] = { ...ingredient, count: 1 };
+        }
         return acc;
       },
       {}
     );
 
     const total = Object.values(ingredientsInfo).reduce(
-      (acc, item) => acc + item.price * item.count,
+      (sum, item) => sum + item.price * item.count,
       0
     );
 
+    const date = new Date(orderData.createdAt);
+
     return {
-      ...orderData,
       ingredientsInfo,
       date,
-      total
+      total,
+      ...orderData
     };
   }, [orderData, ingredients]);
 
-  if (!orderInfo) {
+  const isLoading =
+    !ingredients.length ||
+    (isProfileOrder && !userOrders.length) ||
+    (!isProfileOrder && !orders.length);
+
+  if (isLoading) {
     return <Preloader />;
   }
 
-  return <OrderInfoUI orderInfo={orderInfo} />;
+  if (!orderInfo) {
+    return <div className='text text_type_main-medium'>Заказ не найден</div>;
+  }
+
+  if (!isModal) {
+    return (
+      <div className={styles.detailPageWrap}>
+        <p
+          className={`${styles.detailHeader} text text_type_digits-default mb-10`}
+        >
+          #{String(orderInfo.number).padStart(6, '0')}
+        </p>
+        <OrderInfoUI orderInfo={orderInfo} isModal={isModal} />
+      </div>
+    );
+  }
+
+  return <OrderInfoUI orderInfo={orderInfo} isModal={isModal} />;
 };

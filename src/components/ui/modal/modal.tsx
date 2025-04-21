@@ -14,8 +14,27 @@ export const ModalUI: FC<TModalUIProps> = memo(
           <h3 className={`${styles.title} text text_type_main-large`}>
             {title}
           </h3>
-          <button className={styles.button} type='button'>
-            <CloseIcon type='primary' onClick={onClose} />
+          <button className={styles.button} type='button' onClick={onClose}>
+            <CloseIcon type='primary' />
+          </button>
+        </div>
+        <div className={styles.content}>{children}</div>
+      </div>
+      <ModalOverlayUI onClick={onClose} />
+    </>
+  )
+);
+
+export const OrderModalUI: FC<TModalUIProps> = memo(
+  ({ title, onClose, children }) => (
+    <>
+      <div className={styles.modal}>
+        <div className={styles.header}>
+          <h3 className={`${styles.title} text text_type_main-large`}>
+            {title}
+          </h3>
+          <button className={styles.button} type='button' onClick={onClose}>
+            <CloseIcon type='primary' />
           </button>
         </div>
         <div className={styles.content}>{children}</div>

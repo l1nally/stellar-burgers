@@ -8,84 +8,89 @@ import { ProfileUIProps } from './type';
 import { ProfileMenu } from '@components';
 
 export const ProfileUI: FC<ProfileUIProps> = ({
-  formValue,
-  isFormChanged,
-  updateUserError,
+  name,
+  setName,
+  email,
+  setEmail,
+  password,
+  setPassword,
   handleSubmit,
   handleCancel,
-  handleInputChange
+  isFormChanged,
+  errorText
 }) => (
-  <main className={`${commonStyles.container}`}>
+  <main className={commonStyles.container}>
     <div className={`mt-30 mr-15 ${styles.menu}`}>
       <ProfileMenu />
     </div>
-    <form
-      className={`mt-30 ${styles.form} ${commonStyles.form}`}
-      onSubmit={handleSubmit}
-    >
-      <>
-        <div className='pb-6'>
-          <Input
-            type={'text'}
-            placeholder={'Имя'}
-            onChange={handleInputChange}
-            value={formValue.name}
-            name={'name'}
-            error={false}
-            errorText={''}
-            size={'default'}
-            icon={'EditIcon'}
-          />
-        </div>
-        <div className='pb-6'>
-          <Input
-            type={'email'}
-            placeholder={'E-mail'}
-            onChange={handleInputChange}
-            value={formValue.email}
-            name={'email'}
-            error={false}
-            errorText={''}
-            size={'default'}
-            icon={'EditIcon'}
-          />
-        </div>
-        <div className='pb-6'>
-          <Input
-            type={'password'}
-            placeholder={'Пароль'}
-            onChange={handleInputChange}
-            value={formValue.password}
-            name={'password'}
-            error={false}
-            errorText={''}
-            size={'default'}
-            icon={'EditIcon'}
-          />
-        </div>
-        {isFormChanged && (
-          <div className={styles.button}>
-            <Button
-              type='secondary'
-              htmlType='button'
-              size='medium'
-              onClick={handleCancel}
-            >
-              Отменить
-            </Button>
-            <Button type='primary' size='medium' htmlType='submit'>
-              Сохранить
-            </Button>
+    <div className={styles.wrapCenter}>
+      <form
+        className={`pb-15 ${styles.form} ${commonStyles.form}`}
+        name='profile'
+        onSubmit={handleSubmit}
+      >
+        <>
+          <div className='pb-6'>
+            <Input
+              type='text'
+              placeholder='Имя'
+              onChange={(e) => setName(e.target.value)}
+              value={name}
+              name='name'
+              error={false}
+              errorText=''
+              size='default'
+              icon='EditIcon'
+            />
           </div>
-        )}
-        {updateUserError && (
-          <p
-            className={`${commonStyles.error} pt-5 text text_type_main-default`}
-          >
-            {updateUserError}
-          </p>
-        )}
-      </>
-    </form>
+          <div className='pb-6'>
+            <Input
+              type='email'
+              placeholder='Логин'
+              onChange={(e) => setEmail(e.target.value)}
+              value={email}
+              name='email'
+              error={false}
+              errorText=''
+              size='default'
+              icon='EditIcon'
+            />
+          </div>
+          <div className='pb-6'>
+            <Input
+              type='password'
+              placeholder='Пароль'
+              onChange={(e) => setPassword(e.target.value)}
+              value={password}
+              name='password'
+              error={false}
+              errorText=''
+              size='default'
+              icon='EditIcon'
+            />
+          </div>
+          {errorText && (
+            <p className='text text_type_main-default text_color_error mb-4'>
+              {errorText}
+            </p>
+          )}
+          {isFormChanged && (
+            <div className={styles.button}>
+              <Button
+                type='secondary'
+                htmlType='button'
+                size='medium'
+                onClick={handleCancel}
+              >
+                Отменить
+              </Button>
+              <Button type='primary' size='medium' htmlType='submit'>
+                Сохранить
+              </Button>
+            </div>
+          )}
+        </>
+      </form>
+    </div>
   </main>
 );
